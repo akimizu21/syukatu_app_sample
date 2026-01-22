@@ -1,15 +1,18 @@
+import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from config import Config
 from models import db, User, Company, Schedule, ProposedDate
 
-import os
-
 app = Flask(__name__)
 app.config.from_object(Config)
 
 # CORS設定（フロントエンドからのアクセスを許可）
-CORS(app)
+CORS(app, origins=[
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    # 'https://your-frontend-app.onrender.com'  # デプロイ後に追加
+])
 
 # DB初期化
 db.init_app(app)
@@ -17,16 +20,39 @@ db.init_app(app)
 # 仮のユーザーID（ログイン機能実装まではこれを使う）
 TEMP_USER_ID = 1
 
+
 # ===========================================
-# 初期セットアップ用
+# アプリ起動時にテーブル作成（gunicorn対応）
+# ===========================================
+# ※ if __name__ == '__main__' の外に書くことで
+#    gunicornでも実行される
+with app.app_context():
+    db.create_all()
+    
+    existing_user = db.session.get(User, TEMP_USER_ID)
+    if not existing_user:
+        test_user = User(
+            id=TEMP_USER_ID,
+            user_name='testuser',
+            email='test@example.com',
+            password='password123'
+        )
+        db.session.add(test_user)
+        db.session.commit()
+        print('テストユーザーを作成しました')
+    else:
+        print('テストユーザーは既に存在します')
+
+
+# ===========================================
+# 初期セットアップ用（手動実行用）
 # ===========================================
 @app.route('/api/init', methods=['POST'])
 def init_db():
     """DBテーブル作成 & テスト用ユーザー作成"""
     db.create_all()
     
-    # テスト用ユーザーがいなければ作成
-    if not User.query.get(TEMP_USER_ID):
+    if not db.session.get(User, TEMP_USER_ID):
         test_user = User(
             id=TEMP_USER_ID,
             user_name='testuser',
@@ -38,9 +64,7 @@ def init_db():
     
     return jsonify({'message': 'Database initialized'}), 200
 
-# ---------------
-# 各機能を実装
-# ---------------
+
 # ===========================================
 # 企業（就活状況）API
 # ===========================================
@@ -82,7 +106,7 @@ def create_company():
         via=data.get('via'),
         status=data.get('status'),
         level=data.get('level'),
-        start_time=data.get('start_time'),  # 後でパース処理を追加
+        start_time=data.get('start_time'),
         end_time=data.get('end_time'),
         goodpoint=data.get('goodpoint'),
         badpoint=data.get('badpoint'),
@@ -136,7 +160,6 @@ def update_company(company_id):
     
     data = request.get_json()
     
-    # 更新可能なフィールド
     if 'company_name' in data:
         company.company_name = data['company_name']
     if 'via' in data:
@@ -178,7 +201,6 @@ def delete_company(company_id):
     return jsonify({'message': '企業を削除しました'}), 200
 
 
-
 # ===========================================
 # 動作確認用
 # ===========================================
@@ -188,28 +210,7 @@ def health_check():
     return jsonify({'status': 'ok'}), 200
 
 
+# ローカル開発用
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        
-        # テストユーザーがいなければ作成
-        # existing_user = User.query.get(TEMP_USER_ID)
-        existing_user = db.session.get(User, TEMP_USER_ID)
-
-        if not existing_user:
-            test_user = User(
-                id=TEMP_USER_ID,
-                user_name='testuser',
-                email='test@example.com',
-                password='password123'
-            )
-            db.session.add(test_user)
-            db.session.commit()
-            print('テストユーザーを作成しました')
-        else:
-            print('テストユーザーは既に存在します')
-    
-       # 本番環境対応
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-
+    app.run(host='0.0.0.0', port=port, debug=True)
