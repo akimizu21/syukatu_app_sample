@@ -11,8 +11,8 @@ app.config.from_object(Config)
 CORS(app, origins=[
     'http://localhost:5173',
     'http://127.0.0.1:5173',
-    # 'https://your-frontend-app.onrender.com'  # デプロイ後に追加
-])
+    'https://syukatu-app-sample.onrender.com'
+    ])
 
 # DB初期化
 db.init_app(app)
