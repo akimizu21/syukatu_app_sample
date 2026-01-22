@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getCompanies, createCompany } from './Api.js'
+import { getCompanies, createCompany } from './api.js'
 
 // 選考ステータスの選択肢
 const STATUS_OPTIONS = ['応募中', '書類選考中', '面接予定', '内定', '不採用', '辞退']
