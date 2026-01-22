@@ -38,7 +38,6 @@ class Company(db.Model):
     schedules = db.relationship('Schedule', backref='company', lazy=True)
     proposed_dates = db.relationship('ProposedDate', backref='company', lazy=True)
 
-
 class Schedule(db.Model):
     """スケジュールテーブル"""
     __tablename__ = 'schedules'

@@ -1,4 +1,4 @@
-#!/mnt/c/Users/10aki/Desktop/syukatu_app_sample/backend/venv/bin/python3
+#!/mnt/c/Users/10aki/Desktop/Calendar/backend/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

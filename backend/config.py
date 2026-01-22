@@ -6,11 +6,12 @@ load_dotenv()
 
 class Config:
     """アプリケーション設定"""
-    # PostgreSQL接続URL（.envから読み込み）
     SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key')
-    
-    # 接続URLが設定されていない場合のエラーチェック
-    if not SQLALCHEMY_DATABASE_URI:
-        raise ValueError("DATABASE_URL environment variable is not set")
+
+    # Render では DATABASE_URL が postgres:// で始まる場合があるので変換
+    if SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith('postgres://'):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace('postgres://', 'postgresql+pg8000://', 1)
+    elif SQLALCHEMY_DATABASE_URI and SQLALCHEMY_DATABASE_URI.startswith('postgresql://'):
+        SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI.replace('postgresql://', 'postgresql+pg8000://', 1)

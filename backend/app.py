@@ -3,6 +3,8 @@ from flask_cors import CORS
 from config import Config
 from models import db, User, Company, Schedule, ProposedDate
 
+import os
+
 app = Flask(__name__)
 app.config.from_object(Config)
 
@@ -14,7 +16,6 @@ db.init_app(app)
 
 # 仮のユーザーID（ログイン機能実装まではこれを使う）
 TEMP_USER_ID = 1
-
 
 # ===========================================
 # 初期セットアップ用
@@ -37,7 +38,9 @@ def init_db():
     
     return jsonify({'message': 'Database initialized'}), 200
 
-
+# ---------------
+# 各機能を実装
+# ---------------
 # ===========================================
 # 企業（就活状況）API
 # ===========================================
@@ -175,6 +178,7 @@ def delete_company(company_id):
     return jsonify({'message': '企業を削除しました'}), 200
 
 
+
 # ===========================================
 # 動作確認用
 # ===========================================
@@ -189,7 +193,9 @@ if __name__ == '__main__':
         db.create_all()
         
         # テストユーザーがいなければ作成
-        existing_user = User.query.get(TEMP_USER_ID)
+        # existing_user = User.query.get(TEMP_USER_ID)
+        existing_user = db.session.get(User, TEMP_USER_ID)
+
         if not existing_user:
             test_user = User(
                 id=TEMP_USER_ID,
@@ -203,4 +209,7 @@ if __name__ == '__main__':
         else:
             print('テストユーザーは既に存在します')
     
-    app.run(debug=True, port=5000)
+       # 本番環境対応
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
+

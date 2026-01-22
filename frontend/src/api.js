@@ -1,21 +1,23 @@
-// API通信をまとめるファイル
+// API communication functions
 
-const API_BASE = '/api';
+// 本番環境と開発環境でURLを切り替え
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:5000/api';
+
 
 // ========================================
-// 企業（就活状況）API
+// Company API
 // ========================================
 
-// 企業一覧取得
+// Get companies list
 export async function getCompanies() {
   const response = await fetch(`${API_BASE}/companies`);
   if (!response.ok) {
-    throw new Error('企業一覧の取得に失敗しました');
+    throw new Error('Failed to get companies');
   }
   return response.json();
 }
 
-// 企業追加
+// Create company
 export async function createCompany(data) {
   const response = await fetch(`${API_BASE}/companies`, {
     method: 'POST',
@@ -25,12 +27,12 @@ export async function createCompany(data) {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error('企業の追加に失敗しました');
+    throw new Error('Failed to create company');
   }
   return response.json();
 }
 
-// 企業更新
+// Update company
 export async function updateCompany(companyId, data) {
   const response = await fetch(`${API_BASE}/companies/${companyId}`, {
     method: 'PUT',
@@ -40,23 +42,23 @@ export async function updateCompany(companyId, data) {
     body: JSON.stringify(data),
   });
   if (!response.ok) {
-    throw new Error('企業情報の更新に失敗しました');
+    throw new Error('Failed to update company');
   }
   return response.json();
 }
 
-// 企業削除
+// Delete company
 export async function deleteCompany(companyId) {
   const response = await fetch(`${API_BASE}/companies/${companyId}`, {
     method: 'DELETE',
   });
   if (!response.ok) {
-    throw new Error('企業の削除に失敗しました');
+    throw new Error('Failed to delete company');
   }
   return response.json();
 }
 
-// ヘルスチェック
+// Health check
 export async function healthCheck() {
   const response = await fetch(`${API_BASE}/health`);
   return response.json();

@@ -38,7 +38,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV=/mnt/c/Users/10aki/Desktop/syukatu_app_sample/backend/venv
+VIRTUAL_ENV=/mnt/c/Users/10aki/Desktop/Calendar/backend/venv
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
